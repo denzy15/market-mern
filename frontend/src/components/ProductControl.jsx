@@ -6,7 +6,7 @@ import { numberWithSpaces } from "../utils";
 import ImagePlaceholder from "../assets/no_photo.png";
 
 const ProductControl = (props) => {
-  const { _id, image, brand, name, price, category } = props;
+  const { _id, image, brand, name, price } = props;
 
   const navigate = useNavigate();
   return (
@@ -53,14 +53,6 @@ const ProductControl = (props) => {
         }}
       >
         {brand}
-      </Typography>
-      <Typography
-        sx={{
-          flex: 1,
-          display: { xs: "none", sm: "block" },
-        }}
-      >
-        {category}
       </Typography>
       <Typography
         sx={{

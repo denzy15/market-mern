@@ -135,12 +135,7 @@ function AdminPage() {
           >
             Производитель
           </Typography>
-          <Typography
-            sx={{ flex: 1, display: { xs: "none", sm: "block" } }}
-            variant="caption"
-          >
-            Категория
-          </Typography>
+
           <Typography sx={{ flex: 1 }} variant="caption">
             Цена
           </Typography>
