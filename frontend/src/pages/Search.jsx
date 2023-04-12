@@ -20,10 +20,12 @@ import {
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ProductItem from "../components/ProductItem";
 import FilterButton from "../components/FilterButton";
+import Loader from "../components/Loader";
 
 const Search = () => {
   const { search } = useLocation();
 
+  //get url params
   const sp = new URLSearchParams(search);
   let query = sp.get("query") || "all";
   let price = sp.get("price") || "all";
@@ -43,7 +45,6 @@ const Search = () => {
   const [priceRange, setPriceRange] = useState([0, maxPrice]);
   const [hiddenFilters, setHiddenFilters] = useState(false);
   const [sort, setSort] = useState(0);
-  const [sortedProducts, setSortedProducts] = useState([]);
 
   //UseEffects
   useEffect(() => {
@@ -56,16 +57,13 @@ const Search = () => {
         const { data } = res;
         setState((prev) => ({
           ...prev,
-          products: data.products,
+          products: data.products.sort(
+            (p1, p2) => new Date(p2.createdAt) - new Date(p1.createdAt)
+          ),
           page: data.page,
           pages: data.pages,
           countProducts: data.countProducts,
         }));
-        setSortedProducts(
-          data.products.sort(
-            (p1, p2) => new Date(p2.createdAt) - new Date(p1.createdAt)
-          )
-        );
         setFetchState((prev) => ({ ...prev, loading: false }));
       })
       .catch((err) =>
@@ -113,22 +111,20 @@ const Search = () => {
   const handleSortChange = (e) => {
     setSort(e.target.value);
     if (e.target.value === 0) {
-      setSortedProducts(
-        state.products.sort(
-          (p1, p2) => new Date(p2.createdAt) - new Date(p1.createdAt)
-        )
+      state.products.sort(
+        (p1, p2) => new Date(p2.createdAt) - new Date(p1.createdAt)
       );
+
       return;
     }
 
     if (e.target.value == 1) {
-      setSortedProducts(state.products.sort((p1, p2) => p1.price - p2.price));
+      state.products.sort((p1, p2) => p1.price - p2.price);
       return;
     }
 
-    if (e.target.value == 2) {
-      setSortedProducts(state.products.sort((p1, p2) => p2.price - p1.price));
-    }
+    if (e.target.value == 2)
+      state.products.sort((p1, p2) => p2.price - p1.price);
   };
 
   return (
@@ -210,75 +206,81 @@ const Search = () => {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ flex: 3 }}>
-        <Button
-          variant="contained"
-          sx={{ display: { xs: "inline-block", md: "none" } }}
-          onClick={() => setHiddenFilters((visible) => !visible)}
-        >
-          Фильтры
-        </Button>
+      {fetchState.loading ? (
+        <Loader />
+      ) : (
+        <Box sx={{ flex: 3 }}>
+          <Button
+            variant="contained"
+            sx={{ display: { xs: "inline-block", md: "none" } }}
+            onClick={() => setHiddenFilters((visible) => !visible)}
+          >
+            Фильтры
+          </Button>
 
-        <Box sx={{ display: "flex", mb: 3, justifyContent: "space-between" }}>
-          {query && query !== "all" && (
-            <Box sx={{}}>
-              <Typography variant="h6" sx={{ mr: 1 }}>
-                Найдено: {state.countProducts}
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                <Typography variant="body1">{query}</Typography>
-                <Link to={updateFilter({ query: "all" })}>
-                  <IconButton>
-                    <HighlightOffIcon />
-                  </IconButton>
-                </Link>
+          <Box sx={{ display: "flex", mb: 3, justifyContent: "space-between" }}>
+            {query && query !== "all" && (
+              <Box sx={{}}>
+                <Typography variant="h6" sx={{ mr: 1 }}>
+                  Найдено: {state.countProducts}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                  <Typography variant="body1">{query}</Typography>
+                  <Link to={updateFilter({ query: "all" })}>
+                    <IconButton>
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </Link>
+                </Box>
               </Box>
+            )}
+
+            <Select
+              size="small"
+              sx={{ alignSelf: "center", justifySelf: "" }}
+              value={sort}
+              onChange={handleSortChange}
+              inputProps={{ "aria-label": "Without label" }}
+            >
+              <MenuItem value={0}>Новинки</MenuItem>
+              <MenuItem value={1}>Сначала дешевые</MenuItem>
+              <MenuItem value={2}>Сначала дорогие</MenuItem>
+            </Select>
+          </Box>
+          <ul className="products">
+            {!fetchState.error && state.products.length === 0 ? (
+              <Alert severity="info">По вашему запросу ничего не найдено</Alert>
+            ) : fetchState.error ? (
+              <Alert severity="error">{fetchState.error}</Alert>
+            ) : (
+              state.products.map((p) => <ProductItem key={p._id} {...p} />)
+            )}
+          </ul>
+          {state.products.length !== 0 && (
+            <Box sx={{ textAlign: "center", mt: 4 }}>
+              {[...Array(state.pages).keys()].map((x) => (
+                <Link
+                  key={x}
+                  to={updateFilter({ page: x + 1 })}
+                  style={{ margin: "0 5px" }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{
+                      bgcolor: "#e0e0e0",
+                      color: "black",
+                      fontWeight: Number(page) === x + 1 ? 600 : 400,
+                      fontSize: Number(page) === x + 1 ? 18 : 14,
+                    }}
+                  >
+                    {x + 1}
+                  </Button>
+                </Link>
+              ))}
             </Box>
           )}
-
-          <Select
-            size="small"
-            sx={{ alignSelf: "center", justifySelf: "" }}
-            value={sort}
-            onChange={handleSortChange}
-            inputProps={{ "aria-label": "Without label" }}
-          >
-            <MenuItem value={0}>Новинки</MenuItem>
-            <MenuItem value={1}>Сначала дешевые</MenuItem>
-            <MenuItem value={2}>Сначала дорогие</MenuItem>
-          </Select>
         </Box>
-        <ul className="products">
-          {state.products.length === 0 ? (
-            <Alert severity="info">По вашему запросу ничего не найдено</Alert>
-          ) : (
-            state.products.map((p) => <ProductItem key={p._id} {...p} />)
-          )}
-        </ul>
-        {state.products.length !== 0 && (
-          <Box sx={{ textAlign: "center", mt: 4 }}>
-            {[...Array(state.pages).keys()].map((x) => (
-              <Link
-                key={x}
-                to={updateFilter({ page: x + 1 })}
-                style={{ margin: "0 5px" }}
-              >
-                <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: "#e0e0e0",
-                    color: "black",
-                    fontWeight: Number(page) === x + 1 ? 600 : 400,
-                    fontSize: Number(page) === x + 1 ? 18 : 14,
-                  }}
-                >
-                  {x + 1}
-                </Button>
-              </Link>
-            ))}
-          </Box>
-        )}
-      </Box>
+      )}
     </Box>
   );
 };

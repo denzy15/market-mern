@@ -1,7 +1,8 @@
-import { Alert, Box, Button, CircularProgress } from "@mui/material";
+import { Alert, Box, Button } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useReducer } from "react";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
 import ProductItem from "../components/ProductItem";
 
 const reducer = (state, action) => {
@@ -43,9 +44,7 @@ const Main = () => {
   return (
     <div>
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <CircularProgress />
-        </Box>
+        <Loader />
       ) : error ? (
         <Alert variant="standard" severity="error" sx={{ fontSize: 15 }}>
           {error}

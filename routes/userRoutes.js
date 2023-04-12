@@ -76,7 +76,13 @@ userRouter.put("/:id", isAuth, async (req, res) => {
     }
   );
 
-  res.send({ message: "Info updated successfully" });
+  res.send({
+    _id: me._id,
+    name: me.name,
+    email: me.email,
+    isAdmin: me.isAdmin,
+    token: generateToken(me),
+  });
 });
 
 userRouter.get("/:_id", async (req, res) => {

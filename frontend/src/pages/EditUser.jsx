@@ -6,6 +6,8 @@ import AdminIcon from "@mui/icons-material/SupervisorAccount";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Store } from "../Store";
+import { getError } from "../utils";
+import { toast, ToastContainer } from "react-toastify";
 
 const EditUser = () => {
   const { state } = useContext(Store);
@@ -41,13 +43,22 @@ const EditUser = () => {
     e.preventDefault();
 
     axios
-      .put(`/api/admin/users/${_id}`, {
-        headers: {
-          authorization: `Bearer ${me.token}`,
-        },
-      })
+      .put(
+        `/api/admin/users/${_id}`,
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${me.token}`,
+          },
+        }
+      )
       .then(() => {
-        alert(`Пользователь ${user.name} теперь администратор`);
+        setError("");
+        toast.info(`Пользователь ${user.name} теперь администратор`);
+        setUser({ ...user, isAdmin: true });
+      })
+      .catch((e) => {
+        setError(getError(e));
       });
   }
 
@@ -187,6 +198,7 @@ const EditUser = () => {
           </Stack>
         </Box>
       </Modal>
+      <ToastContainer position="bottom-center" />
     </Box>
   );
 };

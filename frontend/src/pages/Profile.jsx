@@ -19,9 +19,10 @@ import React, { useContext, useState } from "react";
 import { Store } from "../Store";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const Profile = () => {
-  const { state } = useContext(Store);
+  const { state, dispatch } = useContext(Store);
 
   const { userInfo } = state;
 
@@ -32,6 +33,8 @@ const Profile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+
+  console.log(userInfo);
 
   function onChangeHandler(e) {
     const { name, value } = e.target;
@@ -74,9 +77,11 @@ const Profile = () => {
           },
         }
       )
-      .then(() => {
+      .then((res) => {
         setError("");
-        alert("Все четко");
+        toast.info("Изменено");
+        dispatch({ type: "USER_SIGNIN", payload: res.data });
+        localStorage.setItem("userInfo", JSON.stringify(res.data));
         navigate("/");
       })
       .catch((e) => {
@@ -241,6 +246,7 @@ const Profile = () => {
           </Grid>
         </Grid>
       </Box>
+      <ToastContainer position="bottom-center" />
     </Container>
   );
 };
