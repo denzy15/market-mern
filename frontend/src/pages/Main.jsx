@@ -18,7 +18,7 @@ const reducer = (state, action) => {
   }
 };
 
-const Main = () => {
+const Main = (props) => {
   const [{ loading, error, products }, dispatch] = useReducer(reducer, {
     products: [],
     loading: true,
@@ -39,8 +39,17 @@ const Main = () => {
       }
     };
 
-    fetchData();
-  }, []);
+    if (props.favPage) {
+      const favs = JSON.parse(localStorage.getItem("favItems"));
+
+      dispatch({
+        type: "FETCH_SUCCESS",
+        payload: favs,
+      });
+      if (favs.length === 0) dispatch({ type: "FETCH_FAIL", payload: "Пусто" });
+    } else fetchData();
+  }, [props.favPage]);
+
   return (
     <div>
       {loading ? (

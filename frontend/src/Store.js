@@ -16,6 +16,9 @@ const initialState = {
     address: {},
     paymentMethod: {},
   },
+  favorites: localStorage.getItem("favItems")
+    ? JSON.parse(localStorage.getItem("favItems"))
+    : [],
 };
 
 function reducer(state, action) {
@@ -52,7 +55,22 @@ function reducer(state, action) {
       return { ...state, userInfo: action.payload };
     case "USER_SIGNOUT":
       return { ...state, userInfo: null };
+    case "ADD_TO_FAV": {
+      const newItem = action.payload;
+      const favs = state.favorites.slice();
+      const exist = favs.find((item) => item._id === newItem._id);
 
+      if (!exist) favs.push(newItem);
+
+      localStorage.setItem("favItems", JSON.stringify(favs));
+      return { ...state, favorites: favs };
+    }
+    case "REMOVE_FROM_FAV":
+      const favs = state.favorites.filter(
+        (item) => item._id !== action.payload._id
+      );
+      localStorage.setItem("favItems", JSON.stringify(favs));
+      return { ...state, favorites: favs };
     default:
       return state;
   }

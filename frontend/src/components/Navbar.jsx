@@ -116,26 +116,6 @@ function Navbar() {
               </MenuItem>
             </Menu>
           </Box>
-          {/*
-          <DeblurSharp sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Link to="/">
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{
-                mr: 2,
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                fontFamily: "inherit",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              market
-            </Typography>
-          </Link>*/}
 
           <SearchBar />
 
@@ -205,6 +185,14 @@ function Navbar() {
                   }}
                 >
                   <Typography textAlign="center">Корзина</Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    navigate("/favorites");
+                    handleCloseUserMenu();
+                  }}
+                >
+                  <Typography textAlign="center">Избранное</Typography>
                 </MenuItem>
                 <MenuItem
                   onClick={() => {

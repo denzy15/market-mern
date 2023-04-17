@@ -2,14 +2,15 @@ import {
   Box,
   Button,
   Card,
-  CardActionArea,
   CardActions,
-  CardContent,
   CardMedia,
+  IconButton,
   Rating,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import RemoveFromFavIcon from "@mui/icons-material/Favorite";
+import AddToFavIcon from "@mui/icons-material/FavoriteBorder";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { numberWithSpaces } from "../utils";
 import { Store } from "../Store";
@@ -17,24 +18,51 @@ import ImagePlaceholder from "../assets/no_photo.png";
 import { toast, ToastContainer } from "react-toastify";
 
 const ProductItem = (props) => {
-  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { state, dispatch } = useContext(Store);
   const {
     cart: { cartItems },
+    favorites,
   } = state;
 
-  const addToCartHandler = async () => {
+  const [isFav, setIsFav] = useState(
+    favorites.find((item) => item._id === props._id) ? true : false
+  );
+
+  //console.log(isFav);
+
+  const addToCartHandler = () => {
     const existItem = cartItems.find((x) => x._id === props._id);
     const qty = existItem ? existItem.quantity + 1 : 1;
     if (props.countInStock < qty) {
       toast.error("Извините, товара больше нет в наличии");
       return;
     }
-    ctxDispatch({ type: "ADD_TO_CART", payload: { ...props, quantity: qty } });
+    dispatch({ type: "ADD_TO_CART", payload: { ...props, quantity: qty } });
     toast.info("Продукт добавлен в корзину");
   };
 
+  const favoritesHandler = () => {
+    if (isFav) {
+      dispatch({ type: "REMOVE_FROM_FAV", payload: { ...props } });
+      setIsFav((prev) => !prev);
+      return;
+    }
+
+    dispatch({ type: "ADD_TO_FAV", payload: { ...props } });
+    setIsFav((prev) => !prev);
+  };
+
   return (
-    <Card className="product" sx={{ display: "flex", flexDirection: "column" }}>
+    <Card
+      className="product"
+      sx={{ display: "flex", flexDirection: "column", position: "relative" }}
+    >
+      <Box sx={{ position: "absolute", right: 2, top: 2 }}>
+        <IconButton aria-label="fav" color="error" onClick={favoritesHandler}>
+          {!isFav ? <AddToFavIcon /> : <RemoveFromFavIcon />}
+        </IconButton>
+      </Box>
+
       <Link to={`/product/${props.slug}`}>
         <CardMedia
           sx={{ height: 300, width: "100%", backgroundSize: "contain" }}

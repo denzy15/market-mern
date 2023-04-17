@@ -30,6 +30,7 @@ function App() {
         <Container sx={{ mt: 3, flex: 1 }}>
           <Routes>
             <Route path="/" element={<Main />} />
+            <Route path="/favorites" element={<Main favPage={true} />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
             <Route
